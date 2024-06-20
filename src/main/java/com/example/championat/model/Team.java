@@ -6,51 +6,66 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Date;
 import java.util.List;
 
 @Entity
-public class Equipe {
+public class Team {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
-    @NotNull(message = "Le champ nom ne peut pas être null")
-    @NotBlank(message = "Le champ nom ne peut pas être vide")
-    private String nom;
+    @NotBlank(message = "Le nom de l'équipe ne peut pas être vide")
+    private String name;
 
-    @ManyToMany(mappedBy = "equipes")
-    private List<Championnat> championnats;
+    @NotNull(message = "La date de création ne peut pas être null")
+    private Date creationDate;
 
-    public Long getId() {
+    @ManyToMany(mappedBy = "teams")
+    @JsonIgnore
+    private List<Championnat> championships;
+
+
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getNom() {
-        return nom;
+    public String getName() {
+        return name;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public List<Championnat> getChampionnats() {
-        return championnats;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public void setChampionnats(List<Championnat> championnats) {
-        this.championnats = championnats;
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public List<Championnat> getChampionships() {
+        return championships;
+    }
+
+    public void setChampionships(List<Championnat> championships) {
+        this.championships = championships;
     }
 
     @Override
     public String toString() {
-        return "Equipe{" +
+        return "Team{" +
                 "id=" + id +
-                ", nom='" + nom + '\'' +
-                ", championnats=" + championnats +
+                ", name='" + name + '\'' +
+                ", creationDate=" + creationDate +
+                ", championships=" + championships +
                 '}';
     }
 }

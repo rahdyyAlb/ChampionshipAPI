@@ -1,43 +1,49 @@
 package com.example.championat.model;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-
-import java.time.LocalDate;
 import java.util.List;
+
 @Entity
-public class Journee {
+public class Day {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
-    @NotNull(message = "Le champ date ne peut pas être null")
-    private LocalDate date;
+    @NotBlank(message = "Le numéro de la journée ne peut pas être vide")
+    private String number;
 
     @ManyToOne
-    @JoinColumn(name = "championnat_id")
-    @JsonBackReference
+    @JsonIgnore
+    @JoinColumn(name = "idChampionship")
+    @NotNull(message = "Le championnat ne peut pas être null")
     private Championnat championnat;
 
-    @OneToMany(mappedBy = "journee")
-    @JsonBackReference
-    private List<Resultat> resultats;
+    @OneToMany(mappedBy = "day")
+    @JsonIgnore
+    private List<Game> games;
 
-    public Long getId() {
+
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public String getNumber() {
+        return number;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setNumber(String number) {
+        this.number = number;
     }
 
     public Championnat getChampionnat() {
@@ -48,21 +54,11 @@ public class Journee {
         this.championnat = championnat;
     }
 
-    public List<Resultat> getResultats() {
-        return resultats;
+    public List<Game> getGames() {
+        return games;
     }
 
-    public void setResultats(List<Resultat> resultats) {
-        this.resultats = resultats;
-    }
-
-    @Override
-    public String toString() {
-        return "Journee{" +
-                "id=" + id +
-                ", date=" + date +
-                ", championnat=" + championnat +
-                ", resultats=" + resultats +
-                '}';
+    public void setGames(List<Game> games) {
+        this.games = games;
     }
 }

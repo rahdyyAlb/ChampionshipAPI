@@ -1,10 +1,7 @@
 package com.example.championat.controllers;
 
-
-
 import com.example.championat.model.User;
-import com.example.championat.repository.UtilisateurRepository;
-import jakarta.validation.Valid;
+import com.example.championat.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,65 +9,64 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/utilisateurs")
-public class UtilisateurController {
-    private final UtilisateurRepository utilisateurRepository;
-
+@RequestMapping("/api/users")
+public class UserController {
     @Autowired
-    public UtilisateurController(UtilisateurRepository utilisateurRepository) {
-        this.utilisateurRepository = utilisateurRepository;
+    private UserRepository userRepository;
+
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/")
-    public List<User> all() {
-        return utilisateurRepository.findAll();
+    public List<User> getAllUsers() {
+        return (List<User>) userRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public User getOne(@PathVariable Long id) {
-        return utilisateurRepository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "User introuvable"));
+    public User getUserById(@PathVariable int id) {
+        return userRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
-    @GetMapping("/login")
-    public User getByEmailAndMotDePasse(@RequestParam String email, @RequestParam String motDePasse) {
-        return utilisateurRepository.findByEmailAndMotDePasse(email, motDePasse).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "User introuvable"));
+    @GetMapping("/search")
+    public User getUserByEmailAndPassword(@RequestParam String email, @RequestParam String password) {
+        return userRepository.findByEmailAndPassword(email, password).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     @PostMapping("/")
-    public ResponseEntity<User> saveUtilisateur(@Valid @RequestBody User user, BindingResult bindingResult) {
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, bindingResult.toString());
-        } else {
-            utilisateurRepository.save(user);
-            return new ResponseEntity<>(user, HttpStatus.OK);
         }
+        userRepository.save(user);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUtilisateur(@PathVariable Long id, @Valid @RequestBody User userUpdate, BindingResult bindingResult) {
-        User user = utilisateurRepository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "User introuvable"));
-
+    public ResponseEntity<User> updateUser(@PathVariable int id, @Valid @RequestBody User userUpdate, BindingResult bindingResult) {
+        User user = userRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, bindingResult.toString());
-        } else {
-            userUpdate.setId(user.getId());
-            utilisateurRepository.save(userUpdate);
-            return new ResponseEntity<>(userUpdate, HttpStatus.CREATED);
         }
+        userUpdate.setId(user.getId());
+        userRepository.save(userUpdate);
+        return new ResponseEntity<>(userUpdate, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteOne(@PathVariable Long id) {
-        User user = utilisateurRepository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "User introuvable"));
-
-        utilisateurRepository.delete(user);
-        return ResponseEntity.ok("L'user a bien été supprimé");
+    public ResponseEntity<String> deleteUser(@PathVariable int id) {
+        User user = userRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        userRepository.delete(user);
+        return ResponseEntity.ok("User deleted successfully");
     }
 }

@@ -1,9 +1,7 @@
 package com.example.championat.controllers;
 
-
-import com.example.championat.model.Resultat;
-import com.example.championat.repository.ResultatRepository;
-import jakarta.validation.Valid;
+import com.example.championat.model.Game;
+import com.example.championat.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,69 +9,63 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/resultats")
-public class ResultatController {
-    private final ResultatRepository resultatRepository;
-
+@RequestMapping("/api/games")
+public class GameController {
     @Autowired
-    public ResultatController(ResultatRepository resultatRepository) {
-        this.resultatRepository = resultatRepository;
-    }
+    private GameRepository gameRepository;
 
     @GetMapping("/")
-    public List<Resultat> all() {
-        return resultatRepository.findAll();
+    public List<Game> getAllGames() {
+        return (List<Game>) gameRepository.findAll();
     }
 
     @GetMapping("/championnat/{championnatId}")
-    public List<Resultat> getResultatsByChampionnatId(@PathVariable Long championnatId) {
-        return resultatRepository.findByJourneeId(championnatId);
+    public List<Game> getGamesByChampionnatId(@PathVariable int championnatId) {
+        return gameRepository.findByDay_Championnat_Id(championnatId);
     }
 
-    @GetMapping("/journee/{journeeId}")
-    public List<Resultat> getResultatsByJourneeId(@PathVariable Long journeeId) {
-        return resultatRepository.findByJourneeId(journeeId);
+    @GetMapping("/day/{dayId}")
+    public List<Game> getGamesByDayId(@PathVariable int dayId) {
+        return gameRepository.findByDay_Id(dayId);
     }
 
     @GetMapping("/{id}")
-    public Resultat getOne(@PathVariable Long id) {
-        return resultatRepository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Resultat introuvable"));
+    public Game getGameById(@PathVariable int id) {
+        return gameRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found"));
     }
 
     @PostMapping("/")
-    public ResponseEntity<Resultat> saveResultat(@Valid @RequestBody Resultat resultat, BindingResult bindingResult) {
+    public ResponseEntity<Game> createGame(@Valid @RequestBody Game game, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, bindingResult.toString());
-        } else {
-            resultatRepository.save(resultat);
-            return new ResponseEntity<>(resultat, HttpStatus.OK);
         }
+        gameRepository.save(game);
+        return new ResponseEntity<>(game, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Resultat> updateResultat(@PathVariable Long id, @Valid @RequestBody Resultat resultatUpdate, BindingResult bindingResult) {
-        Resultat resultat = resultatRepository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Resultat introuvable"));
-
+    public ResponseEntity<Game> updateGame(@PathVariable int id, @Valid @RequestBody Game gameUpdate, BindingResult bindingResult) {
+        Game game = gameRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found"));
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, bindingResult.toString());
-        } else {
-            resultatUpdate.setId(resultat.getId());
-            resultatRepository.save(resultatUpdate);
-            return new ResponseEntity<>(resultatUpdate, HttpStatus.CREATED);
         }
+        gameUpdate.setId(game.getId());
+        gameRepository.save(gameUpdate);
+        return new ResponseEntity<>(gameUpdate, HttpStatus.OK);
     }
 
-
-    public ResponseEntity<String> deleteOne(@PathVariable Long id) {
-        Resultat resultat = resultatRepository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Resultat introuvable"));
-
-        resultatRepository.delete(resultat);
-        return ResponseEntity.ok("Le resultat a bien été supprimé");
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteGame(@PathVariable int id) {
+        Game game = gameRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found"));
+        gameRepository.delete(game);
+        return ResponseEntity.ok("Game deleted successfully");
     }
 }

@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 
 
 @Entity
-public class Utilisateur {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,9 +21,9 @@ public class Utilisateur {
     @NotNull(message = "Le champ email ne peut pas être null")
     @NotBlank(message = "Le champ email ne peut pas être vide")
     private String email;
-    @NotNull(message = "Le champ motDePasse ne peut pas être null")
-    @NotBlank(message = "Le champ motDePasse ne peut pas être vide")
-    private String motDePasse;
+    @NotNull(message = "Le champ password ne peut pas être null")
+    @NotBlank(message = "Le champ password ne peut pas être vide")
+    private String password;
 
     public Long getId() {
         return id;
@@ -49,18 +49,17 @@ public class Utilisateur {
         this.email = email;
     }
 
-    public String getMotDePasse() {
-        return motDePasse;
+    public String getPassword() {
+        return password;
     }
 
-    public void setMotDePasse(String motDePasse) {
-        this.motDePasse = motDePasse;
+    public void setPassword(String password) {
+        this.password = password;
     }
-
 
     @Override
     public String toString() {
-        return "Utilisateur{" +
+        return "User{" +
                 "id=" + id +
                 ", nom='" + nom + '\'' +
                 ", email='" + email + '\'' +
